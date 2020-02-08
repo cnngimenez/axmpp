@@ -60,6 +60,7 @@ with XMPP.Streams;
 with XMPP.Stream_Features;
 with XMPP.Utils;
 with XMPP.Versions;
+with XMPP.PLAIN_Auth;
 
 package body XMPP.Sessions is
 
@@ -240,7 +241,11 @@ package body XMPP.Sessions is
                Log ("Starting sasl auth");
                Self.Send_Wide_Wide_String
                  ("<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
-                    & "mechanism='DIGEST-MD5'/>");
+                    & "mechanism='PLAIN'>"
+                    & XMPP.PLAIN_Auth.Plain_Password
+                    (Self.JID.To_Wide_Wide_String,
+                     Self.Password.To_Wide_Wide_String)
+                    & "</auth>");
             end if;
 
             Self.Stack.Delete_Last;
