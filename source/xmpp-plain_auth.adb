@@ -24,66 +24,88 @@ with Ada.Streams;
 use Ada.Streams;
 
 with XMPP.Base64;
+--  with XMPP.Logger;
+--  use XMPP.Logger;
 
 package body XMPP.PLAIN_Auth is
-    
+
+    function Generate_Stream (Username, Password : Wide_Wide_String)
+                             return Stream_Element_Array;
+    function Remove_Host (JID : Wide_Wide_String) return Wide_Wide_String;
+
     --  Create the stream needed by the Base64.Encode procedure.
     function Generate_Stream (Username, Password : Wide_Wide_String)
                              return Stream_Element_Array is
-        
-        Length : constant Stream_Element_Offset := 
+
+        Length : constant Stream_Element_Offset :=
           Username'Length + Password'Length + 2;
         Stream_Index : Stream_Element_Offset;
-        
+
         Stream_Array : Stream_Element_Array (0 .. Length);
-        
+
     begin
         --  Zero character
         Stream_Array (0) := 0;
-        
+
         --  Username
         Stream_Index := 1;
         for I in Username'Range loop
-            Stream_Array (Stream_Index) := 
+            Stream_Array (Stream_Index) :=
               Stream_Element (Wide_Wide_Character'Pos (Username (I)));
             Stream_Index := Stream_Index + 1;
         end loop;
-        
+
         --  Zero character
         Stream_Array (Stream_Index) := 0;
         Stream_Index := Stream_Index + 1;
-        
+
         --  Password
         for I in Password'Range loop
-            Stream_Array (Stream_Index) := 
+            Stream_Array (Stream_Index) :=
               Stream_Element (Wide_Wide_Character'Pos (Password (I)));
             Stream_Index := Stream_Index + 1;
         end loop;
-        
+
         return Stream_Array;
     end Generate_Stream;
 
     function Plain_Password (Username, Password : Wide_Wide_String)
                             return Wide_Wide_String is
-        
-        --  The result will have 33% more size at the most according to the 
+
+        Just_Username : constant Wide_Wide_String :=
+          Remove_Host (Username);
+
+        --  The result will have 33% more size at the most according to the
         --  Base64 standard.
-        Length : constant Natural := 
-          Natural 
-          (Float'Ceiling 
-             (1.33 * 
-                Float (Username'Length + Password'Length + 4)));
-          
+        Length : constant Natural :=
+          Natural
+          (Float'Ceiling
+             (1.33 *
+                Float (Just_Username'Length + Password'Length + 4)));
+
         Data : String (1 .. Length);
         Last : Natural;
-        
+
         use Ada.Characters.Conversions;
     begin
-        XMPP.Base64.Encode (Generate_Stream (Username, Password),
+        XMPP.Base64.Encode (Generate_Stream (Just_Username, Password),
                             Data, Last);
-        
-        return To_Wide_Wide_String (Data);                
+
+        return To_Wide_Wide_String (Data);
     end Plain_Password;
-    
-    
+
+    function Remove_Host (JID : Wide_Wide_String) return Wide_Wide_String is
+        Arroba_Founded : Boolean := False;
+        I : Natural := JID'First;
+    begin
+        while I < JID'Length and not Arroba_Founded loop
+            Arroba_Founded := JID (I) = '@';
+            I := I + 1;
+        end loop;
+
+        I := I - 2;
+
+        return JID (JID'First .. I);
+    end Remove_Host;
+
 end XMPP.PLAIN_Auth;

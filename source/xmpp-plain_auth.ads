@@ -19,14 +19,13 @@
 
 -------------------------------------------------------------------------
 
-
 --
 --  PLAIN authentication implemented for XMPP.
 --
 package XMPP.PLAIN_Auth is
-    
+
     --  Return the username and password as a PLAIN Base64 string
     function Plain_Password (Username, Password : Wide_Wide_String)
                             return Wide_Wide_String;
-    
+
 end XMPP.PLAIN_Auth;
