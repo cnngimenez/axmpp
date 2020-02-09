@@ -25,8 +25,8 @@ use Ada.Streams;
 
 with XMPP.Utils;
 with XMPP.Base64;
-with XMPP.Logger;
-use XMPP.Logger;
+--  with XMPP.Logger;
+--  use XMPP.Logger;
 
 package body XMPP.PLAIN_Auth is
 
@@ -38,7 +38,7 @@ package body XMPP.PLAIN_Auth is
                              return Stream_Element_Array is
 
         Length : constant Stream_Element_Offset :=
-          Username'Length + Password'Length + 2;
+          Username'Length + Password'Length + 1;
         Stream_Index : Stream_Element_Offset;
 
         Stream_Array : Stream_Element_Array (0 .. Length);
@@ -89,11 +89,11 @@ package body XMPP.PLAIN_Auth is
 
         use Ada.Characters.Conversions;
     begin
-        Log (Just_Username);
-        Log (Password);
+        --  Log (Just_Username);
+        --  Log (Password);
         XMPP.Base64.Encode (Generate_Stream (Just_Username, Password),
                             Data, Last);
-        Log (Last'Wide_Wide_Image);
+        --  Log (Last'Wide_Wide_Image);
         return To_Wide_Wide_String (Data (1 .. Last));
     end Plain_Password;
 
