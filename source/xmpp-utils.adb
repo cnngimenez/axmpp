@@ -83,6 +83,24 @@ package body XMPP.Utils is
       return Tmp & Image (Int_Id);
    end Gen_Id;
 
+   function Remove_Host (JID : Wide_Wide_String) return Wide_Wide_String is
+        Arroba_Founded : Boolean := False;
+        I : Natural := JID'First;
+    begin
+        while I <= JID'Length and not Arroba_Founded loop
+            Arroba_Founded := JID (I) = '@';
+            I := I + 1;
+        end loop;
+
+        if I <= JID'Length then
+            I := I - 2;
+        else
+            I := I - 1;
+        end if;
+
+        return JID (JID'First .. I);
+    end Remove_Host;
+
    -------------------------------
    --  To_Stream_Element_Array  --
    -------------------------------

@@ -51,4 +51,6 @@ package XMPP.Utils is
                       := League.Strings.Empty_Universal_String)
      return League.Strings.Universal_String;
 
+   --  Remove the '@host' part from a JID if it exist.
+   function Remove_Host (JID : Wide_Wide_String) return Wide_Wide_String;
 end XMPP.Utils;

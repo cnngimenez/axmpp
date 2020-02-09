@@ -23,15 +23,15 @@ with Ada.Characters.Conversions;
 with Ada.Streams;
 use Ada.Streams;
 
+with XMPP.Utils;
 with XMPP.Base64;
---  with XMPP.Logger;
---  use XMPP.Logger;
+with XMPP.Logger;
+use XMPP.Logger;
 
 package body XMPP.PLAIN_Auth is
 
     function Generate_Stream (Username, Password : Wide_Wide_String)
                              return Stream_Element_Array;
-    function Remove_Host (JID : Wide_Wide_String) return Wide_Wide_String;
 
     --  Create the stream needed by the Base64.Encode procedure.
     function Generate_Stream (Username, Password : Wide_Wide_String)
@@ -73,39 +73,28 @@ package body XMPP.PLAIN_Auth is
                             return Wide_Wide_String is
 
         Just_Username : constant Wide_Wide_String :=
-          Remove_Host (Username);
+          XMPP.Utils.Remove_Host (Username);
 
         --  The result will have 33% more size at the most according to the
         --  Base64 standard.
+        Char_Length : constant Natural :=
+          Just_Username'Length + Password'Length + 4;
         Length : constant Natural :=
           Natural
-          (Float'Ceiling
-             (1.33 *
-                Float (Just_Username'Length + Password'Length + 4)));
+          (4 * Natural
+             (Float'Ceiling (Float (Char_Length) / 3.0)));
 
         Data : String (1 .. Length);
         Last : Natural;
 
         use Ada.Characters.Conversions;
     begin
+        Log (Just_Username);
+        Log (Password);
         XMPP.Base64.Encode (Generate_Stream (Just_Username, Password),
                             Data, Last);
-
-        return To_Wide_Wide_String (Data);
+        Log (Last'Wide_Wide_Image);
+        return To_Wide_Wide_String (Data (1 .. Last));
     end Plain_Password;
-
-    function Remove_Host (JID : Wide_Wide_String) return Wide_Wide_String is
-        Arroba_Founded : Boolean := False;
-        I : Natural := JID'First;
-    begin
-        while I < JID'Length and not Arroba_Founded loop
-            Arroba_Founded := JID (I) = '@';
-            I := I + 1;
-        end loop;
-
-        I := I - 2;
-
-        return JID (JID'First .. I);
-    end Remove_Host;
 
 end XMPP.PLAIN_Auth;
