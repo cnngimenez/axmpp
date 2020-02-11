@@ -399,7 +399,11 @@ package body GNUTLS is
             raise GNUTLS_Error with "Data read = 0";
          end if;
 
-         Length := Length + Ada.Streams.Stream_Element_Count (N_Read);
+         if N_Read <
+           Interfaces.C.size_t (Ada.Streams.Stream_Element_Count'Last)
+           then
+               Length := Length + Ada.Streams.Stream_Element_Count (N_Read);
+         end if;
 
          if N_Read < Data (I).Length then
             --  nothing to read
