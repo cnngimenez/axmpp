@@ -39,6 +39,10 @@
 ------------------------------------------------------------------------------
 --  $Revision$ $Date$
 ------------------------------------------------------------------------------
+
+with XMPP.Logger;
+use XMPP.Logger;
+
 package body XMPP.Rosters is
 
    use XMPP.Objects;
@@ -120,7 +124,11 @@ package body XMPP.Rosters is
                           Parameter : League.Strings.Universal_String;
                           Value     : League.Strings.Universal_String) is
    begin
-      raise Program_Error with "Not yet implemented";
+       Log ("XMPP.Rosters.Set_Content:");
+       Log (Parameter);
+       Log (Value);
+       Log (Self.Items_Count'Wide_Wide_Image);
+       --  raise Program_Error with "Not yet implemented";
    end Set_Content;
 
 end XMPP.Rosters;
