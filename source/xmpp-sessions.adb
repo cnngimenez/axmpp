@@ -208,6 +208,8 @@ package body XMPP.Sessions is
       if Namespace_URI = +"http://etherx.jabber.org/streams" then
          if Local_Name = +"stream" then
 
+             Self.Stream_Handler.End_Stream;
+
             --  TODO:
             --  Free (Self.Current);
             Self.Stack.Delete_Last;
