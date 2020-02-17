@@ -152,6 +152,37 @@ package body XMPP.Presences is
                           Value          => Self.From);
       end if;
 
+      if Self.Type_Of_Presence /= Unavailable then
+          case Self.Type_Of_Presence is
+             when Probe =>
+                 Attrs.Set_Value
+                   (Qualified_Name => Type_Of_Presence_To_Attribute,
+                    Value => To_Universal_String ("probe"));
+             when Subscribe =>
+                 Attrs.Set_Value
+                   (Qualified_Name => Type_Of_Presence_To_Attribute,
+                    Value => To_Universal_String ("subscribe"));
+             when Subscribed =>
+                 Attrs.Set_Value
+                   (Qualified_Name => Type_Of_Presence_To_Attribute,
+                    Value => To_Universal_String ("subscribed"));
+             when Unsubscribe =>
+                 Attrs.Set_Value
+                   (Qualified_Name => Type_Of_Presence_To_Attribute,
+                    Value => To_Universal_String ("unsubscribe"));
+             when Unsubscribed =>
+                 Attrs.Set_Value
+                   (Qualified_Name => Type_Of_Presence_To_Attribute,
+                    Value => To_Universal_String ("unsubscribed"));
+             when Error =>
+                 Attrs.Set_Value
+                   (Qualified_Name => Type_Of_Presence_To_Attribute,
+                    Value => To_Universal_String ("error"));
+             when Unavailable =>
+                 null;
+          end case;
+      end if;
+
       Writer.Start_Element (Qualified_Name => Presence_Element,
                             Attributes     => Attrs);
 

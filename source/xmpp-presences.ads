@@ -66,6 +66,9 @@ package XMPP.Presences is
    Show_Element        : constant League.Strings.Universal_String
      := League.Strings.To_Universal_String ("show");
 
+   Type_Of_Presence_To_Attribute : constant League.Strings.Universal_String
+     := League.Strings.To_Universal_String ("type");
+
    type XMPP_Presence is new XMPP.Objects.XMPP_Object with private;
 
    type XMPP_Presence_Access is access all XMPP_Presence'Class;
