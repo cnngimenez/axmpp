@@ -61,6 +61,7 @@ with XMPP.Stream_Features;
 with XMPP.Utils;
 with XMPP.Versions;
 with XMPP.PLAIN_Auth;
+with XMPP.IQ_Uploads;
 
 package body XMPP.Sessions is
 
@@ -592,10 +593,13 @@ package body XMPP.Sessions is
       Log ("-");
 
       if IQ = null then
-         --  Response to session iq has no nested element
-         Self.Stream_Handler.Session_State (Established);
+          --  Response to session iq has no nested element
+          Self.Stream_Handler.Session_State (Established);
 
       else
+          Log ("XMPP.Session: Process_IQ: Object_Kid = "
+                 & XMPP.Object_Kind'Wide_Wide_Image (IQ.Get_Kind));
+
          XMPP.IQS.XMPP_IQ_Access (IQ).Set_To (Self.IQ_Header.Get_To);
          XMPP.IQS.XMPP_IQ_Access (IQ).Set_From (Self.IQ_Header.Get_From);
          XMPP.IQS.XMPP_IQ_Access (IQ).Set_Id (Self.IQ_Header.Get_Id);
@@ -637,6 +641,10 @@ package body XMPP.Sessions is
                   when others =>
                      null;
                end case;
+
+            when IQ_Upload =>
+                Self.Stream_Handler.IQ_Upload
+                  (XMPP.IQ_Uploads.XMPP_IQ_Upload_Access (IQ).all);
 
             when others =>
                null;
@@ -1074,6 +1082,20 @@ package body XMPP.Sessions is
             Self.Stack.Append
               (XMPP.Objects.XMPP_Object_Access (XMPP.Versions.Create));
          end if;
+
+      elsif Namespace_URI = XMPP.IQ_Uploads.Slot_URI then
+          if Local_Name = XMPP.IQ_Uploads.Slot_Element then
+              Self.Stack.Append
+                (XMPP.Objects.XMPP_Object_Access (XMPP.IQ_Uploads.Create));
+          elsif Local_Name = XMPP.IQ_Uploads.Get_Element then
+              XMPP.IQ_Uploads.XMPP_IQ_Upload_Access
+                (Self.Stack.Last_Element).Set_Get_URL
+                (Attributes.Value (+"url"));
+          elsif Local_Name = XMPP.IQ_Uploads.Put_Element then
+              XMPP.IQ_Uploads.XMPP_IQ_Upload_Access
+                (Self.Stack.Last_Element).Set_Put_URL
+                (Attributes.Value (+"url"));
+          end if;
 
       --  Here is the end of actual object parsing.
       else

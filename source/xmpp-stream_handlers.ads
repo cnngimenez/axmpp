@@ -49,6 +49,7 @@ with XMPP.Services;
 with XMPP.Streams;
 with XMPP.Stream_Features;
 with XMPP.Versions;
+with XMPP.IQ_Uploads;
 
 package XMPP.Stream_Handlers is
 
@@ -132,5 +133,11 @@ package XMPP.Stream_Handlers is
    --  Handler is called when sombodies asks our clients version.
    --  Client should fill appropriate fields (Name, Version, OS)
    --  of Version object, or default values will be used.
+
+   not overriding procedure IQ_Upload
+     (Self : in out XMPP_Stream_Handler;
+      IQ_Upload : XMPP.IQ_Uploads.XMPP_IQ_Upload'Class) is null;
+   --  Handler called when an IQ Upload result is received. Usually, this
+   --  type of IQ is received from the server after e slot request is sent.
 
 end XMPP.Stream_Handlers;

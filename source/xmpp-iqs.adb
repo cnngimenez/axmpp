@@ -136,7 +136,8 @@ package body XMPP.IQS is
          null;
 
       else
-         XMPP.Logger.Log ("XMPP_IQ : Unknown parameter : " & Parameter);
+          XMPP.Logger.Log ("XMPP.IQS : Set_Content : Unknown parameter : "
+                             & Parameter);
       end if;
    end Set_Content;
 
