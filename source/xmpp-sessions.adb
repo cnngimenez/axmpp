@@ -641,9 +641,10 @@ package body XMPP.Sessions is
             when others =>
                null;
          end case;
-      end if;
 
-      --  Self.Stream_Handler.IQ (XMPP.IQS.XMPP_IQ_Access (IQ).all);
+         Self.Stream_Handler.IQ (XMPP.IQS.XMPP_IQ_Access (IQ).all);
+
+      end if;
 
       Self.IQ_Header.Set_To (+"");
       Self.IQ_Header.Set_From (+"");
