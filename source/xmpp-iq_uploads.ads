@@ -50,8 +50,14 @@ package XMPP.IQ_Uploads is
     function Get_Get_URL (Self : XMPP_IQ_Upload) return
       League.Strings.Universal_String;
 
+    procedure Set_Get_URL (Self : in out XMPP_IQ_Upload;
+                           Value : League.Strings.Universal_String);
+
     function Get_Put_URL (Self : XMPP_IQ_Upload) return
       League.Strings.Universal_String;
+
+    procedure Set_Put_URL (Self : in out XMPP_IQ_Upload;
+                           Value : League.Strings.Universal_String);
 
     overriding function Get_Kind (Self : XMPP_IQ_Upload) return Object_Kind;
 

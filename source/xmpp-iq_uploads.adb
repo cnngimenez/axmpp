@@ -20,6 +20,7 @@
 -------------------------------------------------------------------------
 
 --  with XML.SAX.Attributes;
+--  with XMPP.Logger;
 
 package body XMPP.IQ_Uploads is
 
@@ -87,12 +88,21 @@ package body XMPP.IQ_Uploads is
                            Parameter : League.Strings.Universal_String;
                            Value     : League.Strings.Universal_String) is
         use League.Strings;
-
+        --  use XMPP.Logger;
     begin
+        --  For some reason, "get" and "put" is not received. But it
+        --  receives "url" twice. However, it is not possible to discern which
+        --  is the GET URL or the PUT URL.
+        --  The first two is set under the XMPP.Sessions.Start_Element
+        --  procedure.
         if Parameter = To_Universal_String ("get") then
             Self.Get_URL := Value;
         elsif Parameter = To_Universal_String ("put") then
             Self.Put_URL := Value;
+        elsif Parameter = To_Universal_String ("url") then
+            --  Self.Get_URL := Value;
+            --  Self.Put_URL := Value;
+            null; --  ignore this attribute. It is set on XMPP.Sessions.
         elsif Parameter = To_Universal_String ("slot") then
             null; --  ignore <slot> tag.
         else
@@ -100,5 +110,17 @@ package body XMPP.IQ_Uploads is
               (XMPP.IQS.XMPP_IQ (Self), Parameter, Value);
         end if;
     end Set_Content;
+
+    procedure Set_Get_URL (Self : in out XMPP_IQ_Upload;
+                           Value : League.Strings.Universal_String) is
+    begin
+        Self.Get_URL := Value;
+    end Set_Get_URL;
+
+    procedure Set_Put_URL (Self : in out XMPP_IQ_Upload;
+                           Value : League.Strings.Universal_String) is
+    begin
+        Self.Put_URL := Value;
+    end Set_Put_URL;
 
 end XMPP.IQ_Uploads;
