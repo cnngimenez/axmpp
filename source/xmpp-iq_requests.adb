@@ -24,8 +24,11 @@ with XML.SAX.Attributes;
 package body XMPP.IQ_Requests is
 
     function Create return not null XMPP_IQ_Request_Access is
+        Request : constant XMPP_IQ_Request_Access
+          := new XMPP_IQ_Request;
     begin
-        return new XMPP_IQ_Request;
+        Request.Set_IQ_Kind (Get);
+        return Request;
     end Create;
 
     function Get_Content_Type (Self : XMPP_IQ_Request) return
@@ -111,18 +114,24 @@ package body XMPP.IQ_Requests is
     procedure Set_Content_Type (Self : in out XMPP_IQ_Request;
                                 Value : League.Strings.Universal_String) is
     begin
+        --  Ensure that the type is get.
+        Self.Set_IQ_Kind (Get);
         Self.Content_Type := Value;
     end Set_Content_Type;
 
     procedure Set_Filename (Self : in out XMPP_IQ_Request;
                             Value : League.Strings.Universal_String) is
     begin
+        --  Ensure that the type is get.
+        Self.Set_IQ_Kind (Get);
         Self.Filename := Value;
     end Set_Filename;
 
     procedure Set_Size (Self : in out XMPP_IQ_Request;
                         Value : League.Strings.Universal_String) is
     begin
+        --  Ensure that the type is get.
+        Self.Set_IQ_Kind (Get);
         Self.Size := Value;
     end Set_Size;
 
