@@ -138,7 +138,9 @@ package body XMPP.Sessions is
       Self.Idle_Task.Stop;
    exception
       when E : others =>
-         Log  (+Ada.Exceptions.Exception_Information (E));
+          Log ("- XMPP.Session: Disconnect:");
+          Log (+Ada.Exceptions.Exception_Information (E));
+          Log ("-");
    end Disconnect;
 
    ----------------------------
@@ -203,7 +205,7 @@ package body XMPP.Sessions is
       --  Log ("<<< End_Element_URI = " & Namespace_URI);
 
       --  Log ("Stack size at begin : "
-      --        & Integer'Wide_Wide_Image (Integer (Self.Stack.Length)));
+      --         & Integer'Wide_Wide_Image (Integer (Self.Stack.Length)));
 
       if Namespace_URI = +"http://etherx.jabber.org/streams" then
          if Local_Name = +"stream" then
@@ -235,12 +237,12 @@ package body XMPP.Sessions is
             --  XXX: may be XMPP object for xmpp-tls name
             --  space should be created
             if not Self.Network.Is_TLS_Established then
-               Log ("Sending starttls");
+               Log ("XMPP.Session: Sending starttls");
                Self.Send_Wide_Wide_String
                  ("<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
 
             elsif not Self.Authenticated then
-               Log ("Starting sasl auth");
+               Log ("XMPP.Session: Starting sasl auth");
                Self.Send_Wide_Wide_String
                  ("<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
                     & "mechanism='PLAIN'>"
@@ -290,7 +292,7 @@ package body XMPP.Sessions is
             --  to server
 
             Self.Stack.Delete_Last;
-            Log ("Authentification successfull !!");
+            Log ("XMPP.Session: Authentification successfull !!");
             Self.Authenticated := True;
             Self.Open_Stream;
          end if;
@@ -425,18 +427,20 @@ package body XMPP.Sessions is
       Occurrence : XML.SAX.Parse_Exceptions.SAX_Parse_Exception) is
 
    begin
-      Log ("Fatal_Error: " & Occurrence.Message);
-      Log ("         Line   : "
-             & Natural'Wide_Wide_Image (Occurrence.Line));
+       Log ("- XMPP.Session: Fatal_Error:");
+       Log ("Fatal_Error: " & Occurrence.Message);
+       Log ("         Line   : "
+              & Natural'Wide_Wide_Image (Occurrence.Line));
 
-      Log ("         Column : "
-             & Natural'Wide_Wide_Image (Occurrence.Column));
+       Log ("         Column : "
+              & Natural'Wide_Wide_Image (Occurrence.Column));
 
-      Log ("Locator ("
-             & Natural'Wide_Wide_Image (Self.Locator.Line)
-             & ":"
-             & Natural'Wide_Wide_Image (Self.Locator.Column)
-             & ")");
+       Log ("Locator ("
+              & Natural'Wide_Wide_Image (Self.Locator.Line)
+              & ":"
+              & Natural'Wide_Wide_Image (Self.Locator.Column)
+              & ")");
+       Log ("-");
    end Fatal_Error;
 
    -----------------
@@ -474,7 +478,7 @@ package body XMPP.Sessions is
    begin
       --  After we connected, initialize parser.
 
-      Log ("On_Connect!");
+      Log ("XMPP.Session: On_Connect!");
       Self.Open_Stream;
    end On_Connect;
 
@@ -483,7 +487,7 @@ package body XMPP.Sessions is
    ---------------------
    overriding procedure On_Disconnect (Self : not null access XMPP_Session) is
    begin
-      Log ("Disconnected");
+      Log ("XMPP.Session: Disconnected");
       Self.Stream_Handler.Disconnected;
    end On_Disconnect;
 
@@ -493,10 +497,10 @@ package body XMPP.Sessions is
    procedure Open (Self : not null access XMPP_Session) is
    begin
       if not Self.Is_Opened then
-         Log ("Connecting");
+         Log ("XMPP.Session: Connecting");
          Self.Network.Connect
            (Self.Host.To_UTF_8_String, Self.Port);
-         Log ("Starting idle");
+         Log ("XMPP.Session: Starting idle");
          Self.Idle_Task.Start (Self.Network'Unchecked_Access);
       end if;
    end Open;
@@ -562,10 +566,11 @@ package body XMPP.Sessions is
       --  Self.On_Connect;
    exception
       when E : others =>
-         Log (Ada.Characters.Conversions.To_Wide_Wide_String
-                (Ada.Exceptions.Exception_Information (E)));
-
-         Self.Disconnect;
+          Log ("- XMPP.Session: Proceed_TLS_Auth:");
+          Log (Ada.Characters.Conversions.To_Wide_Wide_String
+                 (Ada.Exceptions.Exception_Information (E)));
+          Log ("-");
+          Self.Disconnect;
    end Proceed_TLS_Auth;
 
    ------------------
@@ -579,11 +584,12 @@ package body XMPP.Sessions is
 
       --  Setting_IQ_Header (to, from, type, id attrs)
 
-      Log ("Process_IQ:");
+      Log ("- XMPP.Session: Process_IQ:");
       Log (Self.IQ_Header.Get_To);
       Log (Self.IQ_Header.Get_From);
       Log (Self.IQ_Header.Get_Id);
       Log (XMPP.IQ_Kind'Wide_Wide_Image (Self.IQ_Header.Get_IQ_Kind));
+      Log ("-");
 
       if IQ = null then
          --  Response to session iq has no nested element
@@ -636,6 +642,8 @@ package body XMPP.Sessions is
                null;
          end case;
       end if;
+
+      --  Self.Stream_Handler.IQ (XMPP.IQS.XMPP_IQ_Access (IQ).all);
 
       Self.IQ_Header.Set_To (+"");
       Self.IQ_Header.Set_From (+"");
@@ -695,7 +703,10 @@ package body XMPP.Sessions is
       Self.Writer.Set_Output_Destination (Self.Output'Unchecked_Access);
       Object.Serialize (Self.Writer);
 
-      Log ("Sending Data : " & Self.Output.Get_Text);
+      Log (">>>>>>>>>>");
+      Log ("Sending Data : ");
+      Log (Self.Output.Get_Text);
+      Log (">>>>>>>>>>");
 
       Self.Network.Send
         (UTF_8_Codec.Encode (Self.Output.Get_Text).To_Stream_Element_Array);
@@ -704,7 +715,7 @@ package body XMPP.Sessions is
 
       Self.Output.Clear;
 
-      Log ("Data Sent");
+      Log ("XMPP.Session: Data Sent");
    end Send_Object;
 
    -----------------------------
@@ -713,8 +724,10 @@ package body XMPP.Sessions is
    procedure Send_Wide_Wide_String (Self : in out XMPP_Session;
                                     Str  : Wide_Wide_String) is
    begin
-      --  DEBUG
-      Log ("Sending XML : " & Str);
+       --  DEBUG
+       Log ("- XMPP.Session: Send_Wide_Wide_String:");
+       Log ("Sending XML : " & Str);
+       Log ("-");
 
       Self.Network.Send
         (XMPP.Utils.To_Stream_Element_Array
@@ -1063,9 +1076,11 @@ package body XMPP.Sessions is
 
       --  Here is the end of actual object parsing.
       else
-         Log ("WARNING skipped unknown data : ");
-         Log ("Namespace_URI : " & Namespace_URI);
-         Log ("Local_Name : " & Local_Name);
+          Log ("- XMPP.Session: Start_Element: ");
+          Log ("WARNING skipped unknown data : ");
+          Log ("Namespace_URI : " & Namespace_URI);
+          Log ("Local_Name : " & Local_Name);
+          Log ("-");
          return;
       end if;
 
