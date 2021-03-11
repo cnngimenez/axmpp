@@ -39,12 +39,28 @@
 ##############################################################################
 ##  $Revision$ $Date$
 ##############################################################################
-all:
+
+PREFIX = /usr/local/
+
+all: compile install
+
+compile:
 	gprbuild -p -Pgnat/agnutls.gpr
 	gprbuild -p -Pgnat/axmpp.gpr
 	gprbuild -p -Pgnat/con_cli.gpr
+
+install: uninstall
+	gprinstall --prefix=$(PREFIX) -p gnat/agnutls.gpr
+	gprinstall --prefix=$(PREFIX) -p gnat/axmpp.gpr
+	gprinstall --prefix=$(PREFIX) -p gnat/con_cli.gpr
 
 clean:
 	gprclean -Pgnat/agnutls.gpr
 	gprclean -Pgnat/axmpp.gpr
 	gprclean -Pgnat/con_cli.gpr
+
+.IGNORE: uninstall
+uninstall: 
+	gprinstall --uninstall --prefix=$(PREFIX) -p gnat/agnutls.gpr
+	gprinstall --uninstall --prefix=$(PREFIX) -p gnat/axmpp.gpr
+	gprinstall --uninstall --prefix=$(PREFIX) -p gnat/con_cli.gpr
